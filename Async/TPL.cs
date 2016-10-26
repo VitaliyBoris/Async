@@ -21,7 +21,32 @@ namespace Async
             });
         }
 
+        public static void LookupHostNames(string[] hostNames)
+        {
+            LookupHostNamesHelper(hostNames, 0);
+        }
+
+        private static void LookupHostNamesHelper(string[] hostNames, int i)
+        {
+            Task<IPAddress[]> ipAddressesPromise = Dns.GetHostAddressesAsync(hostNames[i]);
+            ipAddressesPromise.ContinueWith(_ =>
+            {
+                IPAddress[] ipAddresses = ipAddressesPromise.Result;
+                foreach (var ipAddress in ipAddresses)
+                {
+                    Console.WriteLine(ipAddress);
+                }
+
+                if (i + 1 < hostNames.Length)
+                {
+                    LookupHostNamesHelper(hostNames, i + 1);
+                }
+            });
+        }
+
         #endregion
+
+        #region Await
 
         public static async void DumpWebPageAsync(Uri uri)
         {
@@ -53,5 +78,7 @@ namespace Async
             }
             return largest;
         }
+
+        #endregion
     }
 }
